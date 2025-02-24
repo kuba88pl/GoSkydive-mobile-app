@@ -10,8 +10,11 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.goskydive.Alerts;
 import com.goskydive.Friends;
@@ -23,15 +26,30 @@ import com.goskydive.Weather;
 
 public class LogBook extends AppCompatActivity {
 
+    private RecyclerView recyclerView;
+    private RecyclerViewAdapter adapter;
+    private FirebaseAuth fAuth;
+    private String userId;
+
     Toolbar toolbar;
     NavigationView navigationView;
     DrawerLayout drawerLayout;
+
+    ArrayList<RecyclerViewLogBookModel> recyclerViewLogBookModelList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_loog_book);
+        setContentView(R.layout.activity_log_book);
+
+        fAuth = FirebaseAuth.getInstance();
+        userId = fAuth.getCurrentUser().getUid();
+
+        recyclerView.findViewById(R.id.logbook_recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecyclerViewAdapter(userId);
+        recyclerView.setAdapter(adapter);
 
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigation_view);
@@ -85,5 +103,8 @@ public class LogBook extends AppCompatActivity {
             }
         });
 
+
     }
+
+
 }
