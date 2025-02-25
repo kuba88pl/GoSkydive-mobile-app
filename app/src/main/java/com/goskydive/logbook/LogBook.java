@@ -2,6 +2,7 @@ package com.goskydive.logbook;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.goskydive.Alerts;
 import com.goskydive.Friends;
 import com.goskydive.Login;
+import com.goskydive.MainActivity;
 import com.goskydive.Messages;
 import com.goskydive.R;
 import com.goskydive.Settings;
@@ -35,8 +37,6 @@ public class LogBook extends AppCompatActivity {
     NavigationView navigationView;
     DrawerLayout drawerLayout;
 
-    ArrayList<RecyclerViewLogBookModel> recyclerViewLogBookModelList = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,16 +44,21 @@ public class LogBook extends AppCompatActivity {
         setContentView(R.layout.activity_log_book);
 
         fAuth = FirebaseAuth.getInstance();
-        userId = fAuth.getCurrentUser().getUid();
-
-        recyclerView.findViewById(R.id.logbook_recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecyclerViewAdapter(userId);
-        recyclerView.setAdapter(adapter);
+        if (fAuth != null) {
+            userId = fAuth.getCurrentUser().getUid();
+        } else {
+            Log.e("Logbook", "User is not logged in");
+            return;
+        }
 
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigation_view);
         drawerLayout = findViewById(R.id.drawerLayout);
+        recyclerView = findViewById(R.id.logbook_recyclerview);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecyclerViewAdapter(userId);
+        recyclerView.setAdapter(adapter);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(LogBook.this, drawerLayout, toolbar, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(toggle);
@@ -63,6 +68,10 @@ public class LogBook extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.nav_home) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                }
                 if (item.getItemId() == R.id.nav_logbok) {
                     Intent intent = new Intent(getApplicationContext(), LogBook.class);
                     startActivity(intent);
@@ -85,10 +94,6 @@ public class LogBook extends AppCompatActivity {
                 }
                 if (item.getItemId() == R.id.nav_settings) {
                     Intent intent = new Intent(getApplicationContext(), Settings.class);
-                    startActivity(intent);
-                }
-                if (item.getItemId() == R.id.nav_logbok) {
-                    Intent intent = new Intent(getApplicationContext(), LogBook.class);
                     startActivity(intent);
                 }
                 if (item.getItemId() == R.id.nav_logout) {

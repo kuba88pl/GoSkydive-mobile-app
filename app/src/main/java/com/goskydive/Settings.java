@@ -41,6 +41,10 @@ public class Settings extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.nav_home) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                }
                 if (item.getItemId() == R.id.nav_logbok) {
                     Intent intent = new Intent(getApplicationContext(), LogBook.class);
                     startActivity(intent);

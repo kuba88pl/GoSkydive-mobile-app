@@ -1,6 +1,5 @@
 package com.goskydive.logbook;
 
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,24 +10,19 @@ import androidx.annotation.NonNull;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import com.google.firebase.firestore.QuerySnapshot;
 import com.goskydive.R;
 
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
-    FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userId;
 
@@ -41,27 +35,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     private void loadJumps() {
+        if (userId != null) {
+            DocumentReference documentRef = fStore.collection("userJumpsLogBook").document(userId);
+            CollectionReference collectionRef = documentRef.collection("jumps");
+//            DocumentReference nextJumpRef = collectionRef.document("nextJump");
 
-        fAuth = FirebaseAuth.getInstance();
-        userId = fAuth.getCurrentUser().getUid();
-        DocumentReference documentRef = fStore.collection("userJumpsLogBook").document(userId);
-        CollectionReference collectionRef = documentRef.collection("jumps");
-
-        collectionRef
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null) {
-                            rcJumpList = querySnapshot.getDocuments();
-                            notifyDataSetChanged();
+            collectionRef.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if (querySnapshot != null) {
+                                rcJumpList = querySnapshot.getDocuments();
+                                Log.d("RecyclerViewAdapter", "Data loaded: " + rcJumpList.size());
+                                notifyDataSetChanged();
+                            } else {
+                                Log.e("RecyclerViewAdapter", "QuerySnapshot is null");
+                            }
                         } else {
-                            Log.e("RecyclerViewAdapter", "QuerySnapshot is null");
+                            Log.e("RecyclerViewAdapter", "Error getting documents");
                         }
-                    } else {
-                        Log.e("RecyclerViewAdapter", "Error getting documents");
-                    }
-                });
+                    });
+        } else {
+            Log.e("RecyclerViewAdapter", "userId is null");
+        }
     }
 
     @NonNull
@@ -77,23 +73,51 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        DocumentSnapshot recyclerViewLogBookModel = rcJumpList.get(position);
-        if (recyclerViewLogBookModel != null) {
-            double jumpNo = recyclerViewLogBookModel.getDouble("jumpNumber");
-            String jumpDate = recyclerViewLogBookModel.getString("date");
-            double jumpHeight = recyclerViewLogBookModel.getDouble("jumpHeight");
-            String jumpStyle = recyclerViewLogBookModel.getString("jumpType");
+        Log.d("RecyclerViewAdapter", "onBindViewHolder called for position: " + position);
 
-            holder.jumpNo.setText(Double.toString(jumpNo));
-            holder.jumpDate.setText(jumpDate);
-            holder.jumpHeight.setText(Double.toString(jumpHeight));
-            holder.jumpStyle.setText(jumpStyle);
+        if (rcJumpList != null && position < rcJumpList.size()) {
+            DocumentSnapshot doc = rcJumpList.get(position);
+            RecyclerViewLogBookModel model = doc.toObject(RecyclerViewLogBookModel.class);
+            if (model != null) {
+//                Long jumpNo = doc.getLong("jumpNumber");
+//                String jumpDate = doc.getString("date");
+//                Long jumpHeight = doc.getLong("jumpHeight");
+//                String jumpStyle = doc.getString("jumpType");
+                Long jumpNo = model.getRcJumpNumber();
+                String jumpDate = model.getRcJumpDate();
+                Long jumpHeight = model.getRcJumpHeight();
+                String jumpStyle = model.getRcJumpStyle();
+                Map<String, Object> nextJumpMap = model.getNextJump();
+                if (jumpNo != null) {
+                    holder.jumpNo.setText(Long.toString(jumpNo));
+                }
+                holder.jumpDate.setText(jumpDate);
+                if (jumpHeight != null) {
+                    holder.jumpHeight.setText(Long.toString(jumpHeight));
+                }
+                holder.jumpStyle.setText(jumpStyle);
+                Log.d("RecyclerViewAdapter", "Model data: " + model.toString());
+
+                if (nextJumpMap != null && !nextJumpMap.isEmpty()) {
+                    StringBuilder nextJumpString = new StringBuilder();
+                    for (Map.Entry<String, Object> entry : nextJumpMap.entrySet()) {
+                        nextJumpString.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+                        if (nextJumpString.length() > 2) {
+                            nextJumpString.setLength(nextJumpString.length() - 2);
+                            Log.d("RecyclerViewAdapter", "nextJump: " + nextJumpString.toString());
+                        } else {
+                            Log.d("RecyclerViewAdapter", "nextJump is null or empty");
+                        }
+
+                    }
+                }
+            }
         }
     }
 
     @Override
     public int getItemCount() {
-        return rcJumpList.size();
+        return rcJumpList != null ? rcJumpList.size() : 0;
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
