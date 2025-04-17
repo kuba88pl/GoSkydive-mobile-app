@@ -38,13 +38,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/primary_color"
                 app:subtitleTextColor="@color/black"
-                app:title="@string/app_name" />
+                app:title="@string/app_name"
+                />
 
         </com.google.android.material.appbar.AppBarLayout>
 

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.goskydive.R;
 
@@ -38,9 +39,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (userId != null) {
             DocumentReference documentRef = fStore.collection("userJumpsLogBook").document(userId);
             CollectionReference collectionRef = documentRef.collection("jumps");
-//            DocumentReference nextJumpRef = collectionRef.document("nextJump");
 
-            collectionRef.get()
+            collectionRef
+//                    .orderBy("jumpNumber", Query.Direction.DESCENDING)
+                    .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
@@ -79,60 +81,48 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             DocumentSnapshot doc = rcJumpList.get(position);
             RecyclerViewLogBookModel model = doc.toObject(RecyclerViewLogBookModel.class);
             if (model != null) {
-//                Long jumpNo = doc.getLong("jumpNumber");
-//                String jumpDate = doc.getString("date");
-//                Long jumpHeight = doc.getLong("jumpHeight");
-//                String jumpStyle = doc.getString("jumpType");
-                Long jumpNo = model.getRcJumpNumber();
-                String jumpDate = model.getRcJumpDate();
-                Long jumpHeight = model.getRcJumpHeight();
-                String jumpStyle = model.getRcJumpStyle();
                 Map<String, Object> nextJumpMap = model.getNextJump();
-                if (jumpNo != null) {
-                    holder.jumpNo.setText(Long.toString(jumpNo));
-                }
-                holder.jumpDate.setText(jumpDate);
-                if (jumpHeight != null) {
-                    holder.jumpHeight.setText(Long.toString(jumpHeight));
-                }
-                holder.jumpStyle.setText(jumpStyle);
-                Log.d("RecyclerViewAdapter", "Model data: " + model.toString());
-
                 if (nextJumpMap != null && !nextJumpMap.isEmpty()) {
-                    StringBuilder nextJumpString = new StringBuilder();
-                    for (Map.Entry<String, Object> entry : nextJumpMap.entrySet()) {
-                        nextJumpString.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
-                        if (nextJumpString.length() > 2) {
-                            nextJumpString.setLength(nextJumpString.length() - 2);
-                            Log.d("RecyclerViewAdapter", "nextJump: " + nextJumpString.toString());
-                        } else {
-                            Log.d("RecyclerViewAdapter", "nextJump is null or empty");
-                        }
+                    Long jumpNo = (Long) nextJumpMap.get("jumpNumber");
+                    String jumpDate = (String) nextJumpMap.get("date");
+                    Long jumpHeight = (Long) nextJumpMap.get("jumpHeight");
+                    String jumpStyle = (String) nextJumpMap.get("jumpType");
 
+                    if (jumpNo != null) {
+                        holder.jumpNo.setText(Long.toString(jumpNo));
                     }
+                    holder.jumpDate.setText(jumpDate);
+                    if (jumpHeight != null) {
+                        holder.jumpHeight.setText(Long.toString(jumpHeight));
+                    }
+                    holder.jumpStyle.setText(jumpStyle);
+                    Log.d("RecyclerViewAdapter", "Model data: " + model.toString());
+                } else {
+                    Log.d("RecyclerViewAdapter", "nextJump is null or empty");
                 }
+
             }
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return rcJumpList != null ? rcJumpList.size() : 0;
-    }
-
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView jumpNo;
-        TextView jumpDate;
-        TextView jumpHeight;
-        TextView jumpStyle;
-
-        public MyViewHolder(@NonNull View itemView) {
-            super(itemView);
-            jumpNo = itemView.findViewById(R.id.rc_jump_number);
-            jumpDate = itemView.findViewById(R.id.rc_date_jump);
-            jumpHeight = itemView.findViewById(R.id.rc_jump_height);
-            jumpStyle = itemView.findViewById(R.id.rc_jump_style);
-        }
-
-    }
+@Override
+public int getItemCount() {
+    return rcJumpList != null ? rcJumpList.size() : 0;
 }
+
+public static class MyViewHolder extends RecyclerView.ViewHolder {
+    TextView jumpNo;
+    TextView jumpDate;
+    TextView jumpHeight;
+    TextView jumpStyle;
+
+    public MyViewHolder(@NonNull View itemView) {
+        super(itemView);
+        jumpNo = itemView.findViewById(R.id.rc_jump_number);
+        jumpDate = itemView.findViewById(R.id.rc_date_jump);
+        jumpHeight = itemView.findViewById(R.id.rc_jump_height);
+        jumpStyle = itemView.findViewById(R.id.rc_jump_style);
+    }
+
+}
+    }

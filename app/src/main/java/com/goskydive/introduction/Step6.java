@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.goskydive.MainActivity;
-import com.goskydive.MainActivityOld;
 import com.goskydive.R;
 
 public class Step6 extends AppCompatActivity {
