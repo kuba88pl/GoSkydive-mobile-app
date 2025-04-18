@@ -63,10 +63,10 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), LogBook.class);
                     startActivity(intent);
                 }
-                if (item.getItemId() == R.id.nav_messages) {
-                    Intent intent = new Intent(getApplicationContext(), Messages.class);
-                    startActivity(intent);
-                }
+//                if (item.getItemId() == R.id.nav_messages) {
+//                    Intent intent = new Intent(getApplicationContext(), Messages.class);
+//                    startActivity(intent);
+//                }
                 if (item.getItemId() == R.id.nav_friends) {
                     Intent intent = new Intent(getApplicationContext(), Friends.class);
                     startActivity(intent);
