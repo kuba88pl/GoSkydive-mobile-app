@@ -41,7 +41,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             CollectionReference collectionRef = documentRef.collection("jumps");
 
             collectionRef
-//                    .orderBy("jumpNumber", Query.Direction.DESCENDING)
+                    .orderBy("nextJump.jumpNumber", Query.Direction.DESCENDING)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
